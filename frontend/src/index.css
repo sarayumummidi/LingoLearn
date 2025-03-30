@@ -3,9 +3,21 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color-scheme: light;
+  color: #213547;
+  background-color: #ffffff;
+
+  /* CSS Variables for consistent theming */
+  --background: #ffffff;
+  --foreground: #213547;
+  --muted-foreground: #666666;
+  --border: rgba(0, 0, 0, 0.1);
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --radius: 8px;
+  --card-bg: #f9f9f9;
+  --primary: #646cff;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f1f1;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -24,25 +36,48 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+.app {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  flex: 1;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  box-sizing: border-box;
 }
 
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
+  margin: 0;
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: var(--card-bg);
+  color: var(--foreground);
   cursor: pointer;
   transition: border-color 0.25s;
 }
@@ -58,11 +93,18 @@ button:focus-visible {
   :root {
     color: #213547;
     background-color: #ffffff;
+    --background: #ffffff;
+    --foreground: #213547;
+    --muted-foreground: #666666;
+    --border: rgba(0, 0, 0, 0.1);
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --card-bg: #f9f9f9;
   }
   a:hover {
     color: #747bff;
   }
   button {
-    background-color: #f9f9f9;
+    background-color: var(--card-bg);
+    color: var(--foreground);
   }
 }

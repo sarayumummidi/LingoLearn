@@ -1,0 +1,146 @@
+/* Study page styles */
+.study-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 0;
+}
+
+.study-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  width: 100%;
+  max-width: 400px;
+  gap: 1rem;
+}
+
+.study-header .page-title {
+  font-size: 1.5rem;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.card-counter {
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  white-space: nowrap;
+}
+
+.flashcard-container {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto 2rem auto;
+  perspective: 1000px;
+  cursor: pointer;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.flashcard {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+.flashcard-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.flashcard.flipped .flashcard-inner {
+  transform: rotateY(180deg);
+}
+
+.flashcard-front,
+.flashcard-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  border-radius: var(--radius);
+  background-color: var(--card-bg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  color: var(--foreground);
+}
+
+.flashcard-back {
+  transform: rotateY(180deg);
+}
+
+.flashcard-content {
+  font-size: 1.5rem;
+  text-align: center;
+  margin-bottom: auto;
+  color: var(--foreground);
+}
+
+.flashcard-hint {
+  margin-top: auto;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+  display: flex;
+  align-items: center;
+}
+
+.flashcard-hint .icon {
+  width: 1rem;
+  height: 1rem;
+  margin-left: 0.25rem;
+}
+
+.study-controls {
+  display: flex;
+  justify-content: space-between;
+  max-width: 400px;
+  width: 100%;
+  margin-top: 2rem;
+  margin-left: 2rem;
+  gap: 1rem;
+}
+
+.study-controls button {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  border: none;
+  transition: background-color 0.2s;
+}
+
+.study-controls button:hover {
+  background-color: #a8a6e3;
+}
+
+.study-controls button:disabled {
+  background-color: #b0aeae;
+  cursor: not-allowed;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 0;
+  color: var(--muted-foreground);
+}
+
+@media (min-width: 768px) {
+  .study-header {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
