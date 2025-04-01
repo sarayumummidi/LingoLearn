@@ -21,8 +21,7 @@ export const setEndpoints = {
   createFlashcard: (flashcardData) =>
     api.post('/create_flashcard', flashcardData),
   getFlashcard: (id) => api.get(`/flashcard/${id}`),
-  updateFlashcard: (id, flashcardData) =>
-    api.put(`/update_flashcard/${id}`, flashcardData),
+  updateFlashcard: (id, flashcardData) => api.put(`/update_flashcard/${id}`, flashcardData),
   deleteFlashcard: (id) => api.delete(`/delete_flashcard/${id}`),
   getFlashcards: (skip = 0, limit = 10) =>
     api.get(`/flashcards?skip=${skip}&limit=${limit}`),

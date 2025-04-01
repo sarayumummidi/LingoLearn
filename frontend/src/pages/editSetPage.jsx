@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import '../styles/editset.css'
+import setEndpoints from '../services/api'
 
 const languages = [
   { id: 'spanish', name: 'Spanish', flag: '🇪🇸' },
@@ -23,22 +24,31 @@ function EditSetPage() {
   const [language, setLanguage] = useState('')
   const [description, setDescription] = useState('')
   const [cards, setCards] = useState([])
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Load the set from localStorage
-    const sets = JSON.parse(localStorage.getItem('flashcardSets') || '[]')
-    const foundSet = sets.find((s) => s.id === setId)
-
-    if (foundSet) {
-      setSet(foundSet)
-      setTitle(foundSet.title)
-      setLanguage(foundSet.language)
-      setDescription(foundSet.description || '')
-      setCards(foundSet.cards || [])
-    } else {
-      // If set not found, redirect to library page
-      navigate('/library')
+    const loadSet = async () => {
+      try {
+        const response = await setEndpoints.getSet(setId)
+        if (response.data) {
+          setSet(response.data)
+          setTitle(response.data.title)
+          setLanguage(response.data.language)
+          setDescription(response.data.description || '')
+          setCards(response.data.flashcards || [])
+        } else {
+          navigate('/library')
+        }
+      } catch (error) {
+        console.error('Error loading set:', error)
+        setError('Failed to load set. Please try again.')
+        navigate('/library')
+      } finally {
+        setLoading(false)
+      }
     }
+    loadSet()
   }, [setId, navigate])
 
   const updateCard = (id, field, value) => {
@@ -58,14 +68,14 @@ function EditSetPage() {
 
   const addNewCard = () => {
     const newCard = {
-      id: Date.now().toString(),
       front: '',
       back: '',
+      isNew: true,
     }
     setCards([...cards, newCard])
   }
 
-  const saveChanges = () => {
+  const saveChanges = async () => {
     // Validate
     if (!title.trim()) {
       alert('Please enter a title for your set')
@@ -91,30 +101,51 @@ function EditSetPage() {
       return
     }
 
-    // Update the set
-    const updatedSet = {
-      ...set,
-      title,
-      language,
-      description,
-      cards,
-      updatedAt: new Date().toISOString(),
+    try {
+      // First update the set details
+      const setData = {
+        title: title.trim(),
+        language,
+        description: description.trim(),
+      }
+
+      const setResponse = await setEndpoints.updateSet(setId, setData)
+      if (!setResponse.data) {
+        throw new Error('Failed to update set')
+      }
+
+      // Then update each flashcard
+      for (const card of cards) {
+        if (card.isNew) {
+          // Create new card
+          await setEndpoints.createFlashcard({
+            front: card.front.trim(),
+            back: card.back.trim(),
+            set_id: setId,
+          })
+        } else if (card.id) {
+          // Update existing card
+          await setEndpoints.updateFlashcard(card.id, {
+            front: card.front.trim(),
+            back: card.back.trim(),
+          })
+        }
+      }
+
+      navigate('/library')
+    } catch (error) {
+      console.error('Error updating set:', error)
+      alert('Failed to update set. Please try again.')
     }
-
-    // Save to localStorage
-    const sets = JSON.parse(localStorage.getItem('flashcardSets') || '[]')
-    const updatedSets = sets.map((s) => (s.id === setId ? updatedSet : s))
-    localStorage.setItem('flashcardSets', JSON.stringify(updatedSets))
-
-    // Navigate back to library
-    navigate('/library')
   }
 
-  if (!set) return <div>Loading...</div>
+  if (loading) return <div>Loading...</div>
 
   return (
     <div className="edit-set-page">
       <h1 className="page-title handwritten">Edit Flashcard Set</h1>
+
+      {error && <div className="error-message">{error}</div>}
 
       <div className="edit-form">
         <div className="form-section">
