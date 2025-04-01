@@ -9,7 +9,7 @@ class Set(Base):
     language = Column(String, nullable= False)
     description = Column(String, nullable= True)
 
-    flashcards = relationship("Flashcard", back_populates="set", cascade="all, delete", lazy="dynamic")
+    flashcards = relationship("Flashcard", back_populates="set", cascade="all, delete-orphan")
 
 class Flashcard(Base):
     __tablename__ = 'flashcards'

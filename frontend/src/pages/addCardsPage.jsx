@@ -1,29 +1,32 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import '../styles/addCards.css'
+import setEndpoints from '../services/api'
 
 function AddCardsPage() {
   const navigate = useNavigate()
   const { setId } = useParams()
   const [set, setSet] = useState(null)
-  const [flashcards, setFlashcards] = useState([
-    { front: '', back: '' },
-    { front: '', back: '' },
-  ])
+  const [flashcards, setFlashcards] = useState([{ front: '', back: '' }])
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    // Load the set from localStorage
-    const existingSets = JSON.parse(
-      localStorage.getItem('flashcardSets') || '[]'
-    )
-    const currentSet = existingSets.find((s) => s.id === setId)
-    if (!currentSet) {
-      navigate('/')
-      return
+    const loadSet = async () => {
+      try {
+        const response = await setEndpoints.getSet(setId)
+        if (response.data) {
+          setSet(response.data)
+        }
+      } catch (error) {
+        console.error('Error loading set:', error)
+        setError('Failed to load set. Please try again.')
+        navigate('/')
+      }
     }
-    setSet(currentSet)
+    loadSet()
   }, [setId, navigate])
 
   const handleAddCard = () => {
@@ -31,7 +34,6 @@ function AddCardsPage() {
   }
 
   const handleDeleteCard = (index) => {
-    if (flashcards.length <= 2) return
     const newFlashcards = flashcards.filter((_, i) => i !== index)
     setFlashcards(newFlashcards)
   }
@@ -42,30 +44,55 @@ function AddCardsPage() {
     setFlashcards(newFlashcards)
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+    setError('')
+    setLoading(true)
 
-    // Update the set with the flashcards
-    const existingSets = JSON.parse(
-      localStorage.getItem('flashcardSets') || '[]'
-    )
-    const updatedSets = existingSets.map((s) =>
-      s.id === setId ? { ...s, cards: flashcards } : s
-    )
-    localStorage.setItem('flashcardSets', JSON.stringify(updatedSets))
+    try {
+      // Validate flashcards
+      const emptyCards = flashcards.filter(
+        (card) => !card.front.trim() || !card.back.trim()
+      )
+      if (emptyCards.length > 0) {
+        throw new Error('Please fill in both sides of all cards')
+      }
 
-    // Redirect to study page
-    navigate(`/study/${setId}`)
+      // Create each flashcard
+      for (const card of flashcards) {
+        await setEndpoints.createFlashcard({
+          front: card.front.trim(),
+          back: card.back.trim(),
+          set_id: setId,
+        })
+      }
+
+      // Redirect to library page
+      navigate('/library')
+    } catch (error) {
+      console.error('Error adding flashcards:', error)
+      setError(
+        error.response?.data?.detail ||
+          error.message ||
+          'Failed to add flashcards. Please try again.'
+      )
+    } finally {
+      setLoading(false)
+    }
   }
 
-  if (!set) return null
+  if (!set) {
+    return <div>Loading...</div>
+  }
 
   return (
     <div className="add-cards-page">
       <div className="page-header">
         <h1 className="page-title">Add Cards to "{set.title}"</h1>
-        <p className="subtitle">Add at least 2 cards to your set</p>
+        <p className="subtitle">Add at least 1 card to your set</p>
       </div>
+
+      {error && <div className="error-message">{error}</div>}
 
       <form onSubmit={handleSubmit} className="cards-form">
         <div className="cards-header">
@@ -74,6 +101,7 @@ function AddCardsPage() {
             type="button"
             className="add-card-button"
             onClick={handleAddCard}
+            disabled={loading}
           >
             + Add Card
           </button>
@@ -82,41 +110,48 @@ function AddCardsPage() {
         <div className="cards-container">
           {flashcards.map((card, index) => (
             <div key={index} className="flashcard-pair">
-              <div className="flashcard-input">
-                <label>Front (English)</label>
-                <input
-                  type="text"
-                  value={card.front}
-                  onChange={(e) =>
-                    handleFlashcardChange(index, 'front', e.target.value)
-                  }
-                  placeholder="Word or phrase in English"
-                  required
-                />
+              <div className="flashcard-inputs">
+                <div className="flashcard-input">
+                  <label htmlFor={`front-${index}`}>Front (English)</label>
+                  <input
+                    type="text"
+                    id={`front-${index}`}
+                    name={`front-${index}`}
+                    value={card.front}
+                    onChange={(e) =>
+                      handleFlashcardChange(index, 'front', e.target.value)
+                    }
+                    placeholder="Word or phrase in English"
+                    required
+                    disabled={loading}
+                  />
+                </div>
+
+                <div className="flashcard-input">
+                  <label htmlFor={`back-${index}`}>Back (Translation)</label>
+                  <input
+                    type="text"
+                    id={`back-${index}`}
+                    name={`back-${index}`}
+                    value={card.back}
+                    onChange={(e) =>
+                      handleFlashcardChange(index, 'back', e.target.value)
+                    }
+                    placeholder="Translation in selected language"
+                    required
+                    disabled={loading}
+                  />
+                </div>
               </div>
 
-              <div className="flashcard-input">
-                <label>Back (Translation)</label>
-                <input
-                  type="text"
-                  value={card.back}
-                  onChange={(e) =>
-                    handleFlashcardChange(index, 'back', e.target.value)
-                  }
-                  placeholder="Translation in selected language"
-                  required
-                />
-              </div>
-
-              {flashcards.length > 2 && (
-                <button
-                  type="button"
-                  className="delete-card-button"
-                  onClick={() => handleDeleteCard(index)}
-                >
-                  ×
-                </button>
-              )}
+              <button
+                type="button"
+                className="delete-card-button"
+                onClick={() => handleDeleteCard(index)}
+                disabled={loading}
+              >
+                ×
+              </button>
             </div>
           ))}
         </div>
@@ -126,11 +161,12 @@ function AddCardsPage() {
             type="button"
             className="cancel-button"
             onClick={() => navigate('/')}
+            disabled={loading}
           >
             Cancel
           </button>
-          <button type="submit" className="create-button">
-            Create Flashcard Set
+          <button type="submit" className="create-button" disabled={loading}>
+            {loading ? 'Creating...' : 'Create Flashcard Set'}
           </button>
         </div>
       </form>

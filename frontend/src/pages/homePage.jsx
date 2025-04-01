@@ -1,5 +1,5 @@
-import FeatureCard from "../components/FeatureCard"
-import "../styles/home.css"
+import FeatureCard from '../components/FeatureCard'
+import '../styles/home.css'
 
 function HomePage() {
   return (
@@ -7,8 +7,8 @@ function HomePage() {
       <h1 className="page-title">Welcome to LingoLearn</h1>
 
       <p className="subtitle">
-        A minimalist flashcard app to help you learn new languages efficiently. Create custom flashcard sets or study
-        existing ones.
+        A minimalist flashcard app to help you learn new languages efficiently.
+        Create custom flashcard sets or study existing ones.
       </p>
 
       <div className="feature-cards">
@@ -40,7 +40,8 @@ function HomePage() {
       <div className="recent-activity">
         <h2 className="section-title">Recent Activity</h2>
         <p className="muted-text">
-          You haven't studied any flashcards yet. Start by creating a set or browsing your library.
+          You haven't studied any flashcards yet. Start by creating a set or
+          browsing your library.
         </p>
       </div>
     </div>
@@ -48,4 +49,3 @@ function HomePage() {
 }
 
 export default HomePage
-

@@ -1,54 +1,91 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { Link } from "react-router-dom"
-import "../styles/library.css" 
+import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import '../styles/library.css'
+import setEndpoints from '../services/api'
 
 function LibraryPage() {
   const [sets, setSets] = useState([])
   const [languages, setLanguages] = useState([])
-  const [selectedLanguage, setSelectedLanguage] = useState("all")
+  const [selectedLanguage, setSelectedLanguage] = useState('all')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Load sets from localStorage
-    const savedSets = JSON.parse(localStorage.getItem("flashcardSets") || "[]")
-    setSets(savedSets)
-
-    // Extract unique languages
-    const uniqueLanguages = [...new Set(savedSets.map((set) => set.language))]
-    setLanguages(uniqueLanguages)
+    const loadSets = async () => {
+      try {
+        const response = await setEndpoints.getSets()
+        if (response.data) {
+          console.log('Loaded sets:', response.data) // Debug log
+          setSets(response.data)
+          // Extract unique languages
+          const uniqueLanguages = [
+            ...new Set(response.data.map((set) => set.language)),
+          ]
+          setLanguages(uniqueLanguages)
+        }
+      } catch (error) {
+        console.error('Error loading sets:', error)
+        setError('Failed to load sets. Please try again.')
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadSets()
   }, [])
 
-  const deleteSet = (id) => {
-    if (window.confirm("Are you sure you want to delete this set?")) {
-      const updatedSets = sets.filter((set) => set.id !== id)
-      setSets(updatedSets)
-      localStorage.setItem("flashcardSets", JSON.stringify(updatedSets))
+  const deleteSet = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this set?')) {
+      return
+    }
+
+    try {
+      console.log('Attempting to delete set:', id)
+      const response = await setEndpoints.deleteSet(id)
+      console.log('Delete response:', response)
+      setSets((prevSets) => prevSets.filter((set) => set.id !== id))
+      alert('Set deleted successfully')
+    } catch (error) {
+      console.error('Error deleting set:', error)
+      console.error('Error response:', error.response)
+      if (error.response?.status === 422) {
+        alert('Invalid request. Please try again.')
+      } else {
+        alert('Failed to delete set. Please try again.')
+      }
     }
   }
 
-  const filteredSets = selectedLanguage === "all" ? sets : sets.filter((set) => set.language === selectedLanguage)
+  const filteredSets =
+    selectedLanguage === 'all'
+      ? sets
+      : sets.filter((set) => set.language === selectedLanguage)
 
   const languageNames = {
-    spanish: "Spanish",
-    french: "French",
-    german: "German",
-    italian: "Italian",
-    japanese: "Japanese",
-    korean: "Korean",
-    chinese: "Chinese",
-    portuguese: "Portuguese",
+    spanish: 'Spanish',
+    french: 'French',
+    german: 'German',
+    italian: 'Italian',
+    japanese: 'Japanese',
+    korean: 'Korean',
+    chinese: 'Chinese',
+    portuguese: 'Portuguese',
   }
 
   const languageFlags = {
-    spanish: "🇪🇸",
-    french: "🇫🇷",
-    german: "🇩🇪",
-    italian: "🇮🇹",
-    japanese: "🇯🇵",
-    korean: "🇰🇷",
-    chinese: "🇨🇳",
-    portuguese: "🇵🇹",
+    spanish: '🇪🇸',
+    french: '🇫🇷',
+    german: '🇩🇪',
+    italian: '🇮🇹',
+    japanese: '🇯🇵',
+    korean: '🇰🇷',
+    chinese: '🇨🇳',
+    portuguese: '🇵🇹',
+  }
+
+  if (loading) {
+    return <div>Loading...</div>
   }
 
   return (
@@ -59,6 +96,8 @@ function LibraryPage() {
           Create New Set
         </Link>
       </div>
+
+      {error && <div className="error-message">{error}</div>}
 
       {sets.length === 0 ? (
         <div className="empty-library">
@@ -94,9 +133,12 @@ function LibraryPage() {
                     {languageFlags[set.language]} {languageNames[set.language]}
                   </div>
                   <div className="set-stats">
-                    {set.cards.length} card{set.cards.length !== 1 ? "s" : ""}
+                    {set.flashcards?.length || 0} card
+                    {(set.flashcards?.length || 0) !== 1 ? 's' : ''}
                   </div>
-                  {set.description && <p className="set-description">{set.description}</p>}
+                  {set.description && (
+                    <p className="set-description">{set.description}</p>
+                  )}
                 </div>
                 <div className="set-actions">
                   <Link to={`/study/${set.id}`} className="btn btn-primary">
@@ -105,7 +147,10 @@ function LibraryPage() {
                   <Link to={`/edit/${set.id}`} className="btn btn-secondary">
                     Edit
                   </Link>
-                  <button className="btn btn-outline" onClick={() => deleteSet(set.id)}>
+                  <button
+                    className="btn btn-outline"
+                    onClick={() => deleteSet(set.id)}
+                  >
                     Delete
                   </button>
                 </div>

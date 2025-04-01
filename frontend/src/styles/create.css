@@ -151,6 +151,15 @@
   background-color: var(--primary-hover);
 }
 
+.error-message {
+  background-color: #fee2e2;
+  color: #dc2626;
+  padding: 1rem;
+  border-radius: var(--radius);
+  margin-bottom: 1.5rem;
+  border: 1px solid #fecaca;
+}
+
 @media (max-width: 768px) {
   .create-page {
     padding: 1rem;

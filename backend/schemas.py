@@ -7,14 +7,14 @@ class FlashcardBase(BaseModel):
     back: str
 
 class FlashcardCreate(FlashcardBase):
-    set_id: int
+    set_id: Optional[int] = None 
 
 class Flashcard(FlashcardBase):
     id: int
     set_id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True 
 
 #set schema
 class SetBase(BaseModel):
@@ -29,4 +29,4 @@ class Set(SetBase):
     id: int
     flashcards: List[Flashcard] = []
     class Config:
-        orm_mode = True
+        from_attributes = True
