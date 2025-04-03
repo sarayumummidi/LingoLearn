@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import Flashcard from '../components/flashcard'
 import '../styles/study.css'
+import setEndpoints from '../services/api'
 
 function StudyPage() {
   const { setId } = useParams()
@@ -11,18 +12,40 @@ function StudyPage() {
   const [flipped, setFlipped] = useState(false)
   const [set, setSet] = useState(null)
   const [cards, setCards] = useState([])
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Load the set from localStorage
-    const savedSets = JSON.parse(localStorage.getItem('flashcardSets') || '[]')
-    const currentSet = savedSets.find((s) => s.id === setId)
+    const loadSet = async () => {
+      try {
+        let setData
+        if (setId) {
+          const response = await setEndpoints.getSet(setId)
+          setData = response.data
+        } else {
+          const response = await setEndpoints.getSets()
+          if (response.data && response.data.length > 0) {
+            const sortedSets = response.data.sort(
+              (a, b) => new Date(b.created_at) - new Date(a.created_at)
+            )
+            setData = sortedSets[0]
+          }
+        }
 
-    if (currentSet && currentSet.cards && currentSet.cards.length > 0) {
-      setSet(currentSet)
-      setCards(currentSet.cards)
-      setCurrentIndex(0)
-      setFlipped(false)
+        if (setData) {
+          setSet(setData)
+          setCards(setData.flashcards || [])
+          setCurrentIndex(0)
+          setFlipped(false)
+        }
+      } catch (error) {
+        console.error('Error loading set:', error)
+        setError('Failed to load set. Please try again.')
+      } finally {
+        setLoading(false)
+      }
     }
+    loadSet()
   }, [setId])
 
   const nextCard = () => {
@@ -46,6 +69,10 @@ function StudyPage() {
   const resetCards = () => {
     setCurrentIndex(0)
     setFlipped(false)
+  }
+
+  if (loading) {
+    return <div>Loading...</div>
   }
 
   if (!set || !cards.length) {
