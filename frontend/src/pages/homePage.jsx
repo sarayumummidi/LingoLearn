@@ -11,6 +11,7 @@ function HomePage() {
         Create custom flashcard sets or study existing ones.
       </p>
 
+      {/*feature cards*/}
       <div className="feature-cards">
         <FeatureCard
           icon="book-icon"

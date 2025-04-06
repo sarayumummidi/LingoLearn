@@ -75,6 +75,7 @@ function EditSetPage() {
     setCards([...cards, newCard])
   }
 
+  // save changes to the set after modifications
   const saveChanges = async () => {
     // Validate
     if (!title.trim()) {
@@ -109,6 +110,7 @@ function EditSetPage() {
         description: description.trim(),
       }
 
+      // send the data to the backend
       const setResponse = await setEndpoints.updateSet(setId, setData)
       if (!setResponse.data) {
         throw new Error('Failed to update set')
@@ -134,6 +136,7 @@ function EditSetPage() {
 
       navigate('/library')
     } catch (error) {
+      // handle errors if the set is not updated successfully
       console.error('Error updating set:', error)
       alert('Failed to update set. Please try again.')
     }
@@ -144,13 +147,11 @@ function EditSetPage() {
   return (
     <div className="edit-set-page">
       <h1 className="page-title handwritten">Edit Flashcard Set</h1>
-
       {error && <div className="error-message">{error}</div>}
-
       <div className="edit-form">
         <div className="form-section">
           <h2 className="section-title handwritten">Set Details</h2>
-
+          {/*set title input*/}
           <div className="form-group">
             <label className="form-label handwritten">Set Title</label>
             <input
@@ -161,7 +162,7 @@ function EditSetPage() {
               required
             />
           </div>
-
+          {/*language dropdown*/}
           <div className="form-group">
             <label className="form-label handwritten">Language</label>
             <select
@@ -180,7 +181,7 @@ function EditSetPage() {
               ))}
             </select>
           </div>
-
+          {/*description textarea*/}
           <div className="form-group">
             <label className="form-label handwritten">Description</label>
             <textarea
@@ -204,6 +205,7 @@ function EditSetPage() {
             </button>
           </div>
 
+          {/*cards list*/}
           <div className="cards-list">
             {cards.map((card, index) => (
               <div key={card.id} className="card-edit-item">
@@ -234,6 +236,7 @@ function EditSetPage() {
                     />
                   </div>
                 </div>
+                {/*delete card button*/}
                 <button
                   type="button"
                   className="btn btn-icon delete-card"
@@ -247,7 +250,9 @@ function EditSetPage() {
           </div>
         </div>
       </div>
-
+      {/*cancel and save button if you click cancel, you go back to the library
+      page if you click save changes, you save the changes to the set - triggers
+      the update set endpoint */}
       <div className="form-actions">
         <button
           type="button"

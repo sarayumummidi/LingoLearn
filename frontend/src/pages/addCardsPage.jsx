@@ -13,6 +13,7 @@ function AddCardsPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
+  //load the set
   useEffect(() => {
     const loadSet = async () => {
       try {
@@ -70,6 +71,7 @@ function AddCardsPage() {
       // Redirect to library page
       navigate('/library')
     } catch (error) {
+      //handle errors
       console.error('Error adding flashcards:', error)
       setError(
         error.response?.data?.detail ||
@@ -156,6 +158,9 @@ function AddCardsPage() {
           ))}
         </div>
 
+        {/*cancel and create button*/}
+        {/*if you click cancel, you go back to the library page*/}
+        {/*if you click create, you create the flashcard set - triggers the create set endpoint*/}
         <div className="form-actions">
           <button
             type="button"

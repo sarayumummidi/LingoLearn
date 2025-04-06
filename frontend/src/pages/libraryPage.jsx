@@ -12,14 +12,15 @@ function LibraryPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
 
+  // load the sets
   useEffect(() => {
     const loadSets = async () => {
       try {
+        // get the sets from the backend
         const response = await setEndpoints.getSets()
         if (response.data) {
-          console.log('Loaded sets:', response.data) // Debug log
+          console.log('Loaded sets:', response.data) 
           setSets(response.data)
-          // Extract unique languages
           const uniqueLanguages = [
             ...new Set(response.data.map((set) => set.language)),
           ]
@@ -35,20 +36,23 @@ function LibraryPage() {
     loadSets()
   }, [])
 
+  // delete the set
   const deleteSet = async (id) => {
     if (!window.confirm('Are you sure you want to delete this set?')) {
       return
     }
 
+    // delete the set
     try {
       console.log('Attempting to delete set:', id)
+      // delete the set from the backend
       const response = await setEndpoints.deleteSet(id)
       console.log('Delete response:', response)
       setSets((prevSets) => prevSets.filter((set) => set.id !== id))
-      alert('Set deleted successfully')
     } catch (error) {
       console.error('Error deleting set:', error)
       console.error('Error response:', error.response)
+      // handle errors if the set is not deleted successfully
       if (error.response?.status === 422) {
         alert('Invalid request. Please try again.')
       } else {
@@ -57,6 +61,7 @@ function LibraryPage() {
     }
   }
 
+  // filter the sets
   const filteredSets =
     selectedLanguage === 'all'
       ? sets
@@ -88,6 +93,7 @@ function LibraryPage() {
     return <div>Loading...</div>
   }
 
+  // return the library page
   return (
     <div className="library-page">
       <div className="page-header">
@@ -99,6 +105,7 @@ function LibraryPage() {
 
       {error && <div className="error-message">{error}</div>}
 
+      
       {sets.length === 0 ? (
         <div className="empty-library">
           <p>You don't have any flashcard sets yet.</p>
@@ -107,6 +114,7 @@ function LibraryPage() {
           </Link>
         </div>
       ) : (
+        // filter the sets
         <>
           <div className="filter-controls">
             <label className="handwritten">Filter by language:</label>
@@ -124,6 +132,7 @@ function LibraryPage() {
             </select>
           </div>
 
+          {/*flashcard sets*/}
           <div className="flashcard-sets">
             {filteredSets.map((set) => (
               <div key={set.id} className="set-card">
@@ -140,6 +149,9 @@ function LibraryPage() {
                     <p className="set-description">{set.description}</p>
                   )}
                 </div>
+                {/*study and edit buttons*/}
+                {/*delete button*/}
+                {/*set actions*/}
                 <div className="set-actions">
                   <Link to={`/study/${set.id}`} className="btn btn-primary">
                     Study

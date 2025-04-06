@@ -24,6 +24,7 @@ function CreateSetPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
+  // when you click create, you create the flashcard set - triggers the create set endpoint
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
@@ -44,9 +45,11 @@ function CreateSetPage() {
         flashcards: [],
       }
 
+      // send the data to the backend
       console.log('Sending data to backend:', setData)
       const response = await setEndpoints.createSet(setData)
 
+      // if the set is created successfully, you navigate to the add cards page
       if (response.data) {
         console.log('Set created successfully:', response.data)
         navigate(`/add-cards/${response.data.id}`)
@@ -54,6 +57,7 @@ function CreateSetPage() {
         throw new Error('No data received from server')
       }
     } catch (error) {
+      // handle errors if the set is not created successfully
       console.error('Error creating set:', error)
       setError(
         error.response?.data?.detail ||
@@ -65,6 +69,7 @@ function CreateSetPage() {
     }
   }
 
+  // return the create page
   return (
     <div className="create-page">
       <h1 className="page-title">Create New Flashcard Set</h1>
@@ -72,6 +77,7 @@ function CreateSetPage() {
       {error && <div className="error-message">{error}</div>}
 
       <form onSubmit={handleSubmit} className="create-form">
+        {/*set title input*/}
         <div className="form-group">
           <label htmlFor="title">Set Title</label>
           <input
@@ -85,6 +91,7 @@ function CreateSetPage() {
           />
         </div>
 
+        {/*language dropdown*/}
         <div className="form-group">
           <label htmlFor="language">Language</label>
           <select
@@ -103,6 +110,7 @@ function CreateSetPage() {
           </select>
         </div>
 
+        {/*description textarea*/}
         <div className="form-group">
           <label htmlFor="description">Description (Optional)</label>
           <textarea
@@ -115,6 +123,9 @@ function CreateSetPage() {
           />
         </div>
 
+        {/*cancel and create button*/}
+        {/*if you click cancel, you go back to the library page*/}
+        {/*if you click create, you create the flashcard set - triggers the create set endpoint*/}
         <div className="form-actions">
           <button
             type="button"

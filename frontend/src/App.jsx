@@ -14,6 +14,7 @@ function App() {
       <div className="app">
         <Navbar />
         <main className="container">
+          {/*routes to the pages*/}
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/library" element={<LibraryPage />} />

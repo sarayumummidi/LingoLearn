@@ -15,6 +15,7 @@ function StudyPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
 
+  // load the set
   useEffect(() => {
     const loadSet = async () => {
       try {
@@ -48,6 +49,7 @@ function StudyPage() {
     loadSet()
   }, [setId])
 
+  // next card in the set
   const nextCard = () => {
     if (currentIndex < cards.length - 1) {
       setCurrentIndex(currentIndex + 1)
@@ -55,6 +57,7 @@ function StudyPage() {
     }
   }
 
+  // previous card in the set
   const prevCard = () => {
     if (currentIndex > 0) {
       setCurrentIndex(currentIndex - 1)
@@ -62,10 +65,12 @@ function StudyPage() {
     }
   }
 
+  // flip the card
   const flipCard = () => {
     setFlipped(!flipped)
   }
 
+  // reset the cards
   const resetCards = () => {
     setCurrentIndex(0)
     setFlipped(false)
@@ -75,6 +80,7 @@ function StudyPage() {
     return <div>Loading...</div>
   }
 
+  // if there are no flashcards in the set, you can create a new set
   if (!set || !cards.length) {
     return (
       <div className="empty-state">

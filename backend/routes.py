@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session, joinedload
 import models, schemas
 
+#set routes 
 def get_set(db: Session, set_id: int):
     # Get the set and include its flashcards
     set = db.query(models.Set).filter(models.Set.id == set_id).first()
@@ -53,6 +54,7 @@ def delete_set(db: Session, item_id: int):
     db.commit()
     return set
 
+#flashcard routes
 def get_flashcard(db: Session, item_id: int):
     return db.query(models.Flashcard).filter(models.Flashcard.id == item_id).first()
 
